@@ -113,7 +113,7 @@ botao_remover.bind("<Leave>", on_leave)
 # Rodapé
 label_credito = tk.Label(
     janela,
-    text="Trabalho do professor: Carlos Alberto",
+    text="Trabalho da professora: Suzane",
     font=("Segoe UI", 9),
     fg="#868E96",
     bg=COR_FUNDO
