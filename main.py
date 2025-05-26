@@ -9,7 +9,7 @@ COR_TEXTO = "#212529"
 COR_BOTAO = "#4CAF50"
 COR_BOTAO_HOVER = "#45A049"
 COR_LISTBOX_BG = "#F1F3F5"
-COR_LISTBOX_SELECAO = "#D0EBFF"
+COR_LISTBOX_SELECAO = "#D3D3D3"
 
 # Função para adicionar tarefa
 def adicionar_tarefa():
