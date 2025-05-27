@@ -166,3 +166,40 @@ label_credito.pack()
 
 # Iniciar interface
 janela.mainloop()
+
+
+
+
+
+
+
+
+import ttkbootstrap as tb
+from ttkbootstrap.constants import *
+
+# Inicializa o app com tema claro
+app = tb.Window(themename="flatly")  # Experimente "cosmo", "flatly", "litera", etc.
+
+app.title("Lista de Tarefas")
+app.geometry("400x400")
+
+# Fundo do frame principal
+frame = tb.Frame(app, padding=10)
+frame.pack(fill=BOTH, expand=YES)
+
+label = tb.Label(frame, text="Minhas Tarefas", font=("Helvetica", 16, "bold"))
+label.pack(pady=10)
+
+entrada = tb.Entry(frame, width=30)
+entrada.pack(pady=5)
+
+botao_add = tb.Button(frame, text="Adicionar", bootstyle=SUCCESS)
+botao_add.pack(pady=5)
+
+lista_tarefas = tb.Listbox(frame, height=10)
+lista_tarefas.pack(pady=10)
+
+botao_remover = tb.Button(frame, text="Remover Selecionada", bootstyle=DANGER)
+botao_remover.pack()
+
+app.mainloop()
