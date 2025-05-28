@@ -2,123 +2,132 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
-# Cores customizadas
-COR_FUNDO = "#F8F9FA"
+# Cores e estilos
+COR_FUNDO = "#E7D4CF"
 COR_FRAME = "#FFFFFF"
-COR_TEXTO = "#212529"
-COR_BOTAO = "#4CAF50"
-COR_BOTAO_HOVER = "#45A049"
-COR_LISTBOX_BG = "#F1F3F5"
-COR_LISTBOX_SELECAO = "#D3D3D3"
+COR_TEXTO = "#343A40"
+COR_BOTAO = "#747297"
+COR_BOTAO_HOVER = "#645BB4"
+COR_ESTRELA = "★"  # Estrela preenchida
+COR_ESTRELA_VAZIA = "☆"  # Estrela vazia
 
-# Função para adicionar tarefa
+tarefas = []  # Lista de dicionários: {"texto": "Tarefa", "favorito": False}
+
+# Funções
+def atualizar_telas():
+    for widget in frame_tarefas.winfo_children():
+        widget.destroy()
+    for widget in frame_favoritos.winfo_children():
+        widget.destroy()
+
+    for i, tarefa in enumerate(tarefas):
+        criar_item_tarefa(frame_tarefas, i, tarefa)
+
+        if tarefa["favorito"]:
+            criar_item_tarefa(frame_favoritos, i, tarefa, em_favoritos=True)
+
+def criar_item_tarefa(pai, indice, tarefa, em_favoritos=False):
+    frame = tk.Frame(pai, bg=COR_FRAME, pady=5)
+    frame.pack(fill="x", padx=10, pady=3)
+
+    lbl_texto = tk.Label(frame, text=tarefa["texto"], font=("Segoe UI", 12), bg=COR_FRAME, fg=COR_TEXTO, anchor="w")
+    lbl_texto.pack(side="left", padx=(10, 5), fill="x", expand=True)
+
+    btn_estrela = tk.Button(
+        frame,
+        text=COR_ESTRELA if tarefa["favorito"] else COR_ESTRELA_VAZIA,
+        font=("Segoe UI", 14),
+        bg=COR_FRAME,
+        fg="#FFC107",
+        bd=0,
+        activebackground=COR_FRAME,
+        cursor="hand2",
+        command=lambda: alternar_favorito(indice)
+    )
+    btn_estrela.pack(side="right", padx=10)
+
+    if not em_favoritos:
+        btn_remover = tk.Button(
+            frame,
+            text="🗑",
+            font=("Segoe UI", 12),
+            bg=COR_FRAME,
+            fg="#DC3545",
+            bd=0,
+            activebackground=COR_FRAME,
+            cursor="hand2",
+            command=lambda: remover_tarefa(indice)
+        )
+        btn_remover.pack(side="right", padx=5)
+
 def adicionar_tarefa():
-    tarefa = entrada_tarefa.get().strip()
-    if tarefa:
-        lista_tarefas.insert(tk.END, tarefa)
+    texto = entrada_tarefa.get().strip()
+    if texto:
+        tarefas.append({"texto": texto, "favorito": False})
         entrada_tarefa.delete(0, tk.END)
+        atualizar_telas()
     else:
         messagebox.showwarning("Entrada Inválida", "Digite uma tarefa válida!")
 
-# Função para remover tarefa
-def remover_tarefa():
-    try:
-        indice = lista_tarefas.curselection()[0]
-        lista_tarefas.delete(indice)
-    except IndexError:
-        messagebox.showwarning("Erro", "Selecione uma tarefa para remover.")
+def remover_tarefa(indice):
+    if 0 <= indice < len(tarefas):
+        tarefas.pop(indice)
+        atualizar_telas()
 
-# Efeitos hover nos botões
+def alternar_favorito(indice):
+    tarefas[indice]["favorito"] = not tarefas[indice]["favorito"]
+    atualizar_telas()
+
 def on_enter(e):
     e.widget["background"] = COR_BOTAO_HOVER
 
 def on_leave(e):
     e.widget["background"] = COR_BOTAO
 
-# Criar janela principal
+# Interface
 janela = tk.Tk()
-janela.title("📝 Lista de Tarefas")
-janela.geometry("300x600")
+janela.title("📝 Lista de Tarefas com Estrelas")
+janela.geometry("400x720")
 janela.configure(bg=COR_FUNDO)
 janela.resizable(False, False)
 
-# Frame principal
-frame = tk.Frame(janela, bg=COR_FRAME, bd=1, relief="solid")
-frame.pack(padx=20, pady=30, fill="both", expand=True)
+# Abas
+abas = tk.ttk.Notebook(janela)
+abas.pack(padx=10, pady=10, fill="both", expand=True)
 
-# Título
-titulo = tk.Label(frame, text="📋 Minhas Tarefas", font=("Segoe UI", 18, "bold"), bg=COR_FRAME, fg=COR_TEXTO)
-titulo.pack(pady=(20, 10))
+aba_tarefas = tk.Frame(abas, bg=COR_FUNDO)
+aba_favoritos = tk.Frame(abas, bg=COR_FUNDO)
+abas.add(aba_tarefas, text="Tarefas")
+abas.add(aba_favoritos, text="Favoritos")
 
-# Entrada de tarefa
+# Entrada e botões
 entrada_tarefa = tk.Entry(
-    frame,
-    font=("Segoe UI", 12),
-    width=35,
-    relief="solid",
-    bd=1,
-    bg="#FFFFFF",   # fundo branco puro
-    fg="#212529",   # texto mais escuro
-    insertbackground="#212529"  # cursor visível
+    aba_tarefas, font=("Segoe UI", 13),
+    width=30, relief="solid", bd=1,
+    bg=COR_FRAME, fg=COR_TEXTO, insertbackground=COR_TEXTO
 )
-entrada_tarefa.pack(pady=(5, 10))
+entrada_tarefa.pack(pady=(20, 10), padx=10)
 
-# Botão Adicionar
-botao_adicionar = tk.Button(
-    frame,
-    text="➕ Adicionar Tarefa",
+btn_adicionar = tk.Button(
+    aba_tarefas, text="➕ Adicionar Tarefa",
     font=("Segoe UI", 11, "bold"),
-    bg=COR_BOTAO,
-    fg="#FFFFFF",
-    activebackground=COR_BOTAO_HOVER,
-    relief="flat",
-    cursor="hand2",
+    bg=COR_BOTAO, fg="#FFFFFF", relief="flat",
+    activebackground=COR_BOTAO_HOVER, cursor="hand2",
     command=adicionar_tarefa
 )
-botao_adicionar.pack(pady=(0, 10), ipadx=10, ipady=5)
-botao_adicionar.bind("<Enter>", on_enter)
-botao_adicionar.bind("<Leave>", on_leave)
+btn_adicionar.pack(pady=(0, 10), ipadx=10, ipady=5)
+btn_adicionar.bind("<Enter>", on_enter)
+btn_adicionar.bind("<Leave>", on_leave)
 
-# Lista de tarefas
-lista_tarefas = tk.Listbox(
-    frame,
-    font=("Segoe UI", 12),
-    width=45,
-    height=10,
-    bg=COR_LISTBOX_BG,
-    fg=COR_TEXTO,
-    bd=0,
-    highlightthickness=1,
-    selectbackground=COR_LISTBOX_SELECAO,
-    activestyle="none"
-)
-lista_tarefas.pack(pady=10)
+# Containers para listas
+frame_tarefas = tk.Frame(aba_tarefas, bg=COR_FUNDO)
+frame_tarefas.pack(fill="both", expand=True)
 
-# Botão Remover
-botao_remover = tk.Button(
-    frame,
-    text="🗑️ Remover Selecionada",
-    font=("Segoe UI", 11, "bold"),
-    bg=COR_BOTAO,
-    fg="#FFFFFF",
-    activebackground=COR_BOTAO_HOVER,
-    relief="flat",
-    cursor="hand2",
-    command=remover_tarefa
-)
-botao_remover.pack(pady=(5, 20), ipadx=10, ipady=5)
-botao_remover.bind("<Enter>", on_enter)
-botao_remover.bind("<Leave>", on_leave)
+frame_favoritos = tk.Frame(aba_favoritos, bg=COR_FUNDO)
+frame_favoritos.pack(fill="both", expand=True)
 
 # Rodapé
-label_credito = tk.Label(
-    janela,
-    text="Trabalho da professora: Suzane",
-    font=("Segoe UI", 9),
-    fg="#868E96",
-    bg=COR_FUNDO
-)
-label_credito.pack()
+rodape = tk.Label(janela, text="Trabalho da professora: Suzane", font=("Segoe UI", 9), bg=COR_FUNDO, fg="#868E96")
+rodape.pack(pady=(0, 10))
 
-# Iniciar interface
 janela.mainloop()
